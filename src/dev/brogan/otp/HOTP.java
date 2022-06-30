@@ -24,7 +24,7 @@ public class HOTP {
 	 * @param K "shared secret between client and server" (page 5).
 	 * @param C "8-byte counter value, the moving factor" (page 5).
 	 */
-	public static int HOTP(String K, long C) {
+	public static int HOTP(byte[] K, byte[] C) {
 		return HOTP(K, C, DEFAULT_DIGITS);
 	}
 
@@ -34,26 +34,26 @@ public class HOTP {
 	 * @param C "8-byte counter value, the moving factor" (page 5).
 	 * @param Digit "number of digits in an HOTP value" (page 6).
 	 */
-	public static int HOTP(String K, long C, int Digit) {
+	public static int HOTP(byte[] K, byte[] C, int Digit) {
 		// Check length requirements.
 		assert Digit >= MINIMUM_DIGITS;
 		assert Digit <= MAXIMUM_DIGITS;
-		assert K.getBytes().length >= MINIMUM_SECRET_BYTES;
+		assert K.length >= MINIMUM_SECRET_BYTES;
 
 		return Truncate(HMAC_SHA1(K, C), Digit);
 	}
 
 	/**
 	 * @param K The HMAC key
-	 * @param C The 8-byte HMAC data
+	 * @param C The HMAC data
 	 */
-	static byte[] HMAC_SHA1(String K, long C) {
+	static byte[] HMAC_SHA1(byte[] K, byte[] C) {
 		final String algorithm = "HmacSHA1";
 		try {
-			Key key = new SecretKeySpec(K.getBytes(), algorithm);
+			Key key = new SecretKeySpec(K, algorithm);
 			Mac mac = Mac.getInstance(algorithm);
 			mac.init(key);
-			byte[] input = convertLongToBytes(C);
+			byte[] input = C;
 			return mac.doFinal(input);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			e.printStackTrace();

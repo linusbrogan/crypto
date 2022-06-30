@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HOTPTest {
 	private static final String secretASCII = "12345678901234567890";
+	private static final byte[] secret = secretASCII.getBytes();
+	private static final byte[] zero = new byte[8];
 
 	private static final String[] intermediateHMACValues = {
 		"cc93cf18508d94934c64b65d8ba7667fb7cde4b0",
@@ -52,7 +54,8 @@ class HOTPTest {
 	@Test
 	void generatesCorrectHOTPValues() {
 		for (int i = 0; i < HOTPValues.length; i++) {
-			int hotp = HOTP.HOTP(secretASCII, i);
+			byte[] counter = HOTP.convertLongToBytes(i);
+			int hotp = HOTP.HOTP(secret, counter);
 			assertEquals(HOTPValues[i], hotp);
 		}
 	}
@@ -60,7 +63,8 @@ class HOTPTest {
 	@Test
 	void generatesCorrectIntermediateHMACValues() {
 		for (int i = 0; i < intermediateHMACValues.length; i++) {
-			byte[] hmac = HOTP.HMAC_SHA1(secretASCII, i);
+			byte[] counter = HOTP.convertLongToBytes(i);
+			byte[] hmac = HOTP.HMAC_SHA1(secret, counter);
 			assertEquals(intermediateHMACValues[i], HOTP.convertBytesToHex(hmac));
 		}
 	}
@@ -68,26 +72,28 @@ class HOTPTest {
 	@Test
 	void generates8DigitHOTP() {
 		int i = 7;
+		byte[] counter = HOTP.convertLongToBytes(i);
 		int digits = 8;
-		assertEquals(truncatedValues[i], HOTP.HOTP(secretASCII, i, digits));
+		assertEquals(truncatedValues[i], HOTP.HOTP(secret, counter, digits));
 	}
 
 	@Test
 	void failsWithShortDigits() {
 		int digits = 5;
-		assertThrows(Throwable.class, () -> HOTP.HOTP(secretASCII, 0, digits));
+		assertThrows(Throwable.class, () -> HOTP.HOTP(secret, zero, digits));
 	}
 
 	@Test
 	void failsWithLongDigits() {
 		int digits = 10;
-		assertThrows(Throwable.class, () -> HOTP.HOTP(secretASCII, 0, digits));
+		assertThrows(Throwable.class, () -> HOTP.HOTP(secret, zero, digits));
 	}
 
 	@Test
 	void failsWithShortSecret() {
-		String secret = "hello";
-		assertThrows(Throwable.class, () -> HOTP.HOTP(secret, 0));
+		byte[] secret = "hello".getBytes();
+		byte[] counter = new byte[8];
+		assertThrows(Throwable.class, () -> HOTP.HOTP(secret, counter));
 	}
 
 	@Test
