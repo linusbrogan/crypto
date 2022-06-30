@@ -49,17 +49,29 @@ public class HOTP {
 	 */
 	static byte[] HMAC_SHA1(String K, long C) {
 		final String algorithm = "HmacSHA1";
-		final int nybblesPerLong = 2 * 8;
 		try {
 			Key key = new SecretKeySpec(K.getBytes(), algorithm);
 			Mac mac = Mac.getInstance(algorithm);
 			mac.init(key);
-			byte[] input = convertHexToBytes(zeroPad(Long.toHexString(C), nybblesPerLong));
+			byte[] input = convertLongToBytes(C);
 			return mac.doFinal(input);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	/**
+	 * @return the bytes of l in big-endian order
+	 */
+	static byte[] convertLongToBytes(long l) {
+		final int bytesPerLong = 8;
+		final int bitsPerByte = 8;
+		byte[] bytes = new byte[bytesPerLong];
+		for (int i = 0; i < bytesPerLong; i++) {
+			bytes[bytesPerLong - 1 - i] = (byte) (l >> (i * bitsPerByte));
+		}
+		return bytes;
 	}
 
 	/** Left-pads string with zeroes to at least targetLength. */

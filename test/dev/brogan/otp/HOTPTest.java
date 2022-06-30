@@ -137,4 +137,20 @@ class HOTPTest {
 		assertEquals("2345", HOTP.zeroPad("2345", 2));
 		assertEquals("002345", HOTP.zeroPad("2345", 6));
 	}
+
+	@Test
+	void convertsLongToBytes() {
+		long l = 0x1234567890abcdefL;
+		byte[] b = {
+			0x12,
+			0x34,
+			0x56,
+			0x78,
+			(byte) 0x90,
+			(byte) 0xab,
+			(byte) 0xcd,
+			(byte) 0xef
+		};
+		assertArrayEquals(b, HOTP.convertLongToBytes(l));
+	}
 }
