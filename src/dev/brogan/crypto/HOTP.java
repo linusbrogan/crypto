@@ -16,8 +16,6 @@ public class HOTP {
 	private static final int MAXIMUM_DIGITS = 9;
 	// "The length of the shared secret MUST be at least 128 bits" (page 5).
 	private static final int MINIMUM_SECRET_BYTES = 128 / 8;
-	private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
-
 
 	/**
 	 * Generates a 6-digit HOTP value.
@@ -62,26 +60,6 @@ public class HOTP {
 	}
 
 	/**
-	 * @return the bytes of l in big-endian order
-	 */
-	static byte[] convertLongToBytes(long l) {
-		final int bytesPerLong = 8;
-		final int bitsPerByte = 8;
-		byte[] bytes = new byte[bytesPerLong];
-		for (int i = 0; i < bytesPerLong; i++) {
-			bytes[bytesPerLong - 1 - i] = (byte) (l >> (i * bitsPerByte));
-		}
-		return bytes;
-	}
-
-	/** Left-pads string with zeroes to at least targetLength. */
-	static String zeroPad(String string, int targetLength) {
-		int zeroes = targetLength - string.length();
-		if (targetLength < string.length()) zeroes = 0;
-		return "0".repeat(zeroes) + string;
-	}
-
-	/**
 	 * "Converts an HMAC-SHA-1 value into an HOTP value" (page 6).
 	 * @param hmac
 	 * @param Digit "number of digits in an HOTP value" (page 6).
@@ -102,45 +80,5 @@ public class HOTP {
 		byte[] P = Arrays.copyOfRange(string, Offset, Offset + 4);
 		int dynamicBinaryCode = (P[0] & 0x7f) << 24 | (P[1] & 0xff) << 16 | (P[2] & 0xff) << 8 | (P[3] & 0xff);
 		return dynamicBinaryCode;
-	}
-
-	/**
-	 * @param hex an even-length string of hexadecimal digits
-	 */
-	static byte[] convertHexToBytes(String hex) {
-		int length = hex.length();
-		assert length % 1 != 1;
-		byte[] bytes = new byte[length / 2];
-		for (int i = 0; i < length; i += 2) {
-			char high = hex.charAt(i);
-			char low = hex.charAt(i + 1);
-			bytes[i / 2] = (byte) ((hexCharToByte(high) << 4) + hexCharToByte(low));
-		}
-		return bytes;
-	}
-
-	/**
-	 * @param c a hexadecimal digit
-	 */
-	static byte hexCharToByte(char c) {
-		if (c >= '0' && c <= '9') return (byte) (c - '0');
-		if (c >= 'a' && c <= 'f') return (byte) (c - 'a' + 10);
-		if (c >= 'A' && c <= 'F') return (byte) (c - 'A' + 10);
-
-		// A hexadecimal digit would have been handled already, so fail.
-		assert false;
-		return 0;
-	}
-
-	static String convertBytesToHex(byte[] bytes) {
-		StringBuilder nybbles = new StringBuilder();
-		for (byte b : bytes) {
-			int high = (byte) (b >>> 4) & 0xf;
-			int low = b & 0xf;
-
-			nybbles.append(HEX_CHARS[high]);
-			nybbles.append(HEX_CHARS[low]);
-		}
-		return nybbles.toString();
 	}
 }

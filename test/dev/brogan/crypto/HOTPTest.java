@@ -49,12 +49,11 @@ class HOTPTest {
 	};
 
 	private static final String HEX = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d";
-	private static final String HEX_CHARS = "0123456789abcdef";
 
 	@Test
 	void generatesCorrectHOTPValues() {
 		for (int i = 0; i < HOTPValues.length; i++) {
-			byte[] counter = HOTP.convertLongToBytes(i);
+			byte[] counter = Bytes.convertLongToBytes(i);
 			int hotp = HOTP.HOTP(secret, counter);
 			assertEquals(HOTPValues[i], hotp);
 		}
@@ -63,16 +62,16 @@ class HOTPTest {
 	@Test
 	void generatesCorrectIntermediateHMACValues() {
 		for (int i = 0; i < intermediateHMACValues.length; i++) {
-			byte[] counter = HOTP.convertLongToBytes(i);
+			byte[] counter = Bytes.convertLongToBytes(i);
 			byte[] hmac = HOTP.HMAC_SHA1(secret, counter);
-			assertEquals(intermediateHMACValues[i], HOTP.convertBytesToHex(hmac));
+			assertEquals(intermediateHMACValues[i], Bytes.convertBytesToHex(hmac));
 		}
 	}
 
 	@Test
 	void generates8DigitHOTP() {
 		int i = 7;
-		byte[] counter = HOTP.convertLongToBytes(i);
+		byte[] counter = Bytes.convertLongToBytes(i);
 		int digits = 8;
 		assertEquals(truncatedValues[i], HOTP.HOTP(secret, counter, digits));
 	}
@@ -100,63 +99,14 @@ class HOTPTest {
 	void truncates() {
 		int digits = 6;
 		for (int i = 0; i < HOTPValues.length; i++) {
-			assertEquals(HOTPValues[i], HOTP.Truncate(HOTP.convertHexToBytes(intermediateHMACValues[i]), digits));
+			assertEquals(HOTPValues[i], HOTP.Truncate(Bytes.convertHexToBytes(intermediateHMACValues[i]), digits));
 		}
 	}
 
 	@Test
 	void dynamicallyTruncates() {
 		for (int i = 0; i < truncatedValues.length; i++) {
-			assertEquals(truncatedValues[i], HOTP.DT(HOTP.convertHexToBytes(intermediateHMACValues[i])));
+			assertEquals(truncatedValues[i], HOTP.DT(Bytes.convertHexToBytes(intermediateHMACValues[i])));
 		}
-	}
-
-	@Test
-	void convertsHexToBytes() {
-		byte[] bytes = {1, 35, 69, 103, -119, -85, -51, -17};
-		assertArrayEquals(bytes, HOTP.convertHexToBytes(HEX_CHARS));
-		assertArrayEquals(bytes, HOTP.convertHexToBytes(HEX_CHARS.toUpperCase()));
-	}
-
-	@Test
-	void convertsHexCharToByte() {
-		char[] chars = HEX_CHARS.toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			assertEquals(i, HOTP.hexCharToByte(chars[i]));
-		}
-
-		chars = HEX_CHARS.toUpperCase().toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			assertEquals(i, HOTP.hexCharToByte(chars[i]));
-		}
-	}
-
-	@Test
-	void convertsBytesToHex() {
-		byte[] bytes = {0x00, 0x47, 0x3f, 0x1a};
-		String hex = "00473f1a";
-		assertEquals(hex, HOTP.convertBytesToHex(bytes));
-	}
-
-	@Test
-	void zeroPads() {
-		assertEquals("2345", HOTP.zeroPad("2345", 2));
-		assertEquals("002345", HOTP.zeroPad("2345", 6));
-	}
-
-	@Test
-	void convertsLongToBytes() {
-		long l = 0x1234567890abcdefL;
-		byte[] b = {
-			0x12,
-			0x34,
-			0x56,
-			0x78,
-			(byte) 0x90,
-			(byte) 0xab,
-			(byte) 0xcd,
-			(byte) 0xef
-		};
-		assertArrayEquals(b, HOTP.convertLongToBytes(l));
 	}
 }
