@@ -61,7 +61,6 @@ public class HOTP {
 
 	/**
 	 * "Converts an HMAC-SHA-1 value into an HOTP value" (page 6).
-	 * @param hmac
 	 * @param Digit "number of digits in an HOTP value" (page 6).
 	 */
 	static int Truncate(byte[] hmac, int Digit) {
