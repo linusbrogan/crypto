@@ -1,4 +1,4 @@
-package dev.brogan.otp;
+package dev.brogan.crypto;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

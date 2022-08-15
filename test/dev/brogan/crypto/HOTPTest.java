@@ -1,4 +1,4 @@
-package dev.brogan.otp;
+package dev.brogan.crypto;
 
 import org.junit.jupiter.api.Test;
 
