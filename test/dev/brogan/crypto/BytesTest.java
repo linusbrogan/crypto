@@ -2,8 +2,7 @@ package dev.brogan.crypto;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BytesTest {
 	private static final String HEX_CHARS = "0123456789abcdef";
@@ -13,6 +12,11 @@ public class BytesTest {
 		byte[] bytes = {1, 35, 69, 103, -119, -85, -51, -17};
 		assertArrayEquals(bytes, Bytes.convertHexToBytes(HEX_CHARS));
 		assertArrayEquals(bytes, Bytes.convertHexToBytes(HEX_CHARS.toUpperCase()));
+	}
+
+	@Test
+	void failsConvertingHalfBytesToHex() {
+		assertThrows(AssertionError.class, () -> Bytes.convertHexToBytes("abc"));
 	}
 
 	@Test
