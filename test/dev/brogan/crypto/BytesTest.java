@@ -75,4 +75,19 @@ public class BytesTest {
 		byte[] b = {0, 1, 2};
 		assertThrows(AssertionError.class, () -> Bytes.xor(a, b));
 	}
+
+	@Test
+	void transposesMatrix() {
+		byte[][] before = {
+			{3, 4, -5},
+			{0, -1, 2}
+		};
+		byte[][] after = {
+			{3, 0},
+			{4, -1},
+			{-5, 2}
+		};
+		byte[][] transpose = Bytes.transpose(before);
+		assertArrayEquals(after, transpose);
+	}
 }
