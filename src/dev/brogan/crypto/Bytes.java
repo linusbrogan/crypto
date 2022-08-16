@@ -62,4 +62,13 @@ public class Bytes {
 		}
 		return nybbles.toString();
 	}
+
+	public static byte[] xor(byte[] a, byte[] b) {
+		assert a.length == b.length;
+		byte[] xor = new byte[a.length];
+		for (int i = 0; i < xor.length; i++) {
+			xor[i] = (byte) (a[i] ^ b[i]);
+		}
+		return xor;
+	}
 }

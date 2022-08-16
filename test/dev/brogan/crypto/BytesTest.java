@@ -60,4 +60,19 @@ public class BytesTest {
 		};
 		assertArrayEquals(b, Bytes.convertLongToBytes(l));
 	}
+
+	@Test
+	void xors() {
+		byte[] a = {45, 22, -80, 9};
+		byte[] b = {72, -12, -12, 30};
+		byte[] xor = {101, -30, 68, 23};
+		assertArrayEquals(xor, Bytes.xor(a, b));
+	}
+
+	@Test
+	void xorFailsWithMismatchedBuffers() {
+		byte[] a = {0};
+		byte[] b = {0, 1, 2};
+		assertThrows(AssertionError.class, () -> Bytes.xor(a, b));
+	}
 }
