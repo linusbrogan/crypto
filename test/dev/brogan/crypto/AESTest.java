@@ -60,9 +60,9 @@ class AESTest {
 	byte[] CIPHER_OUTPUT = Bytes.convertHexToBytes("3925841d02dc09fbdc118597196a0b32");
 
 	@Test
-	void enciphers() {
+	void encrypts() {
 		AES aes = new AES(CIPHER_KEY);
-		assertArrayEquals(CIPHER_OUTPUT, aes.Cipher(CIPHER_INPUT));
+		assertArrayEquals(CIPHER_OUTPUT, aes.encrypt(CIPHER_INPUT));
 	}
 
 	// Intermediate State values (page 33)
@@ -133,7 +133,7 @@ class AESTest {
 	@Test
 	void decrypts() {
 		AES aes = new AES(CIPHER_KEY);
-		assertArrayEquals(CIPHER_INPUT, aes.InvCipher(CIPHER_OUTPUT));
+		assertArrayEquals(CIPHER_INPUT, aes.decrypt(CIPHER_OUTPUT));
 	}
 
 	@Test

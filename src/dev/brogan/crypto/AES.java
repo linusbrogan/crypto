@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 /** An implementation of [FIPS 197](https://doi.org/10.6028/NIST.FIPS.197) */
 public class AES {
+	public static final int BLOCK_SIZE = 16;
+
 	private static final int BYTE_MASK = 0xff;
 	/** Word: "A group of 32 bits that is treated either as a single entity or as an array of 4 bytes" (page 6). */
 	private static final int WORD_SIZE = 4;
@@ -38,7 +40,7 @@ public class AES {
 	/** Key schedule (Sec 5.2) */
 	private final byte[][] w;
 
-	AES(byte[] key) {
+	public AES(byte[] key) {
 		AESMode mode = selectModeForKey(key.length);
 		this.Nk = mode.Nk;
 		this.Nr = mode.Nr;
@@ -78,12 +80,12 @@ public class AES {
 	}
 
 	/**
-	 * "Series of transformations that converts plaintext to ciphertext using the Cipher Key" (page 6).
+	 * Cipher: "Series of transformations that converts plaintext to ciphertext using the Cipher Key" (page 6).
 	 * Specified in Sec. 5.1.
 	 * @param in message block to encrypt
 	 * @return ciphertext block
 	 */
-	byte[] Cipher(byte[] in) {
+	public byte[] encrypt(byte[] in) {
 		assert in.length == WORD_SIZE * Nb;
 		assert w.length == Nb * (Nr + 1);
 		byte[][] state = new byte[WORD_SIZE][Nb];
@@ -225,7 +227,7 @@ public class AES {
 	 * @param in ciphertext block to decrypt
 	 * @return message block
 	 */
-	byte[] InvCipher(byte[] in) {
+	public byte[] decrypt(byte[] in) {
 		assert in.length == WORD_SIZE * Nb;
 		assert w.length == Nb * (Nr + 1);
 		byte[][] state = new byte[WORD_SIZE][Nb];
