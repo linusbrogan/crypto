@@ -4,10 +4,6 @@ import java.util.Arrays;
 
 /** An implementation of [FIPS 197](https://doi.org/10.6028/NIST.FIPS.197) */
 public class AES {
-	public static final AES AES128 = new AES(AESMode.AES128);
-	public static final AES AES192 = new AES(AESMode.AES192);
-	public static final AES AES256 = new AES(AESMode.AES256);
-
 	private static final int BYTE_MASK = 0xff;
 	/** Word: "A group of 32 bits that is treated either as a single entity or as an array of 4 bytes" (page 6). */
 	private static final int WORD_SIZE = 4;
@@ -26,7 +22,7 @@ public class AES {
 	 * Specified in Sec. 5.2.
 	 */
 	// AES accesses Rcon[i] for i < max(Nb * (Nr + 1) / Nk) = 11 (maximum for AES-128), so Rcon must have length 11 (Fig. 11).
-	private final byte[][] Rcon = new byte[11][WORD_SIZE];
+	private static final byte[][] Rcon = new byte[11][WORD_SIZE];
 	{
 		byte x = 1;
 		for (int i = 1; i < Rcon.length; i++) {
@@ -39,10 +35,26 @@ public class AES {
 	private final int Nk;
 	/** "Number of rounds, which is a function of Nk and Nb (which is fixed)" (page 7). */
 	private final int Nr;
+	/** Key schedule (Sec 5.2) */
+	private final byte[][] w;
+	/** Modified decryption key schedule (Sec 5.3.5). */
+	private final byte[][] dw;
 
-	AES(AESMode mode) {
+	AES(byte[] key) {
+		AESMode mode = selectModeForKey(key.length);
 		this.Nk = mode.Nk;
 		this.Nr = mode.Nr;
+		w = KeyExpansion(key);
+		dw = ModifiedKeyExpansion();
+	}
+
+	static AESMode selectModeForKey(int keyLength) {
+		for (AESMode mode : AESMode.values()) {
+			if (keyLength == mode.keyLength) {
+				return mode;
+			}
+		}
+		return null;
 	}
 
 	/** Multiplication in GF(2^8) (Sec. 4.2). */
@@ -72,10 +84,9 @@ public class AES {
 	 * "Series of transformations that converts plaintext to ciphertext using the Cipher Key" (page 6).
 	 * Specified in Sec. 5.1.
 	 * @param in message block to encrypt
-	 * @param w key schedule
 	 * @return ciphertext block
 	 */
-	byte[] Cipher(byte[] in, byte[][] w) {
+	byte[] Cipher(byte[] in) {
 		assert in.length == WORD_SIZE * Nb;
 		assert w.length == Nb * (Nr + 1);
 		byte[][] state = new byte[WORD_SIZE][Nb];
@@ -215,10 +226,9 @@ public class AES {
 	 * Inverse Cipher: "Series of transformations that converts ciphertext to plaintext using the Cipher Key" (page 6).
 	 * Specified in Sec. 5.3.
 	 * @param in ciphertext block to decrypt
-	 * @param w key schedule
 	 * @return message block
 	 */
-	byte[] InvCipher(byte[] in, byte[][] w) {
+	byte[] InvCipher(byte[] in) {
 		assert in.length == WORD_SIZE * Nb;
 		assert w.length == Nb * (Nr + 1);
 		byte[][] state = new byte[WORD_SIZE][Nb];
@@ -293,10 +303,9 @@ public class AES {
 	/**
 	 * Equivalent Inverse Cipher (Sec 5.3.5).
 	 * @param in ciphertext block to decrypt
-	 * @param dw modified decryption key schedule
 	 * @return message block
 	 */
-	byte[] EqInvCipher(byte[] in, byte[][] dw) {
+	byte[] EqInvCipher(byte[] in) {
 		assert in.length == WORD_SIZE * Nb;
 		assert dw.length == Nb * (Nr + 1);
 		byte[][] state = new byte[WORD_SIZE][Nb];
@@ -326,7 +335,7 @@ public class AES {
 	}
 
 	/** Modified Key Expansion routine (Sec 5.3.5). */
-	byte[][] ModifiedKeyExpansion(byte[][] w) {
+	byte[][] ModifiedKeyExpansion() {
 		byte[][] dw = new byte[Nb * (Nr + 1)][WORD_SIZE];
 		for (int i = 0; i <= (Nr + 1) * Nb - 1; i++) {
 			dw[i] = w[i];
@@ -343,19 +352,22 @@ public class AES {
 		return dw;
 	}
 
-	public enum AESMode {
+	enum AESMode {
 		// Supported Key-Round combinations
 		AES128(128, 10),
 		AES192(192, 12),
 		AES256(256, 14);
 
+		/** Key length in bytes */
+		private final int keyLength;
 		/** "Number of 32-bit words comprising the Cipher Key" (page 7). */
 		private final int Nk;
 		/** "Number of rounds, which is a function of Nk and Nb (which is fixed)" (page 7). */
 		private final int Nr;
 
 		AESMode(int keyLengthBits, int Nr) {
-			this.Nk = keyLengthBits / (8 * WORD_SIZE);
+			keyLength = keyLengthBits / 8;
+			Nk = keyLength / WORD_SIZE;
 			this.Nr = Nr;
 		}
 	}

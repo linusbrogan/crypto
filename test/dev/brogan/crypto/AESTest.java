@@ -30,9 +30,9 @@ class AESTest {
 
 	@Test
 	void expandsKeys() {
-		assertArrayEquals(w_128b, AES.AES128.KeyExpansion(CIPHER_KEY_128b));
-		assertArrayEquals(w_192b, AES.AES192.KeyExpansion(CIPHER_KEY_192b));
-		assertArrayEquals(w_256b, AES.AES256.KeyExpansion(CIPHER_KEY_256b));
+		assertArrayEquals(w_128b, new AES(CIPHER_KEY_128b).KeyExpansion(CIPHER_KEY_128b));
+		assertArrayEquals(w_192b, new AES(CIPHER_KEY_192b).KeyExpansion(CIPHER_KEY_192b));
+		assertArrayEquals(w_256b, new AES(CIPHER_KEY_256b).KeyExpansion(CIPHER_KEY_256b));
 	}
 
 	@Test
@@ -60,8 +60,9 @@ class AESTest {
 	byte[] CIPHER_OUTPUT = Bytes.convertHexToBytes("3925841d02dc09fbdc118597196a0b32");
 
 	@Test
-	void encrypts() {
-		assertArrayEquals(CIPHER_OUTPUT, AES.AES128.Cipher(CIPHER_INPUT, AES.AES128.KeyExpansion(CIPHER_KEY)));
+	void enciphers() {
+		AES aes = new AES(CIPHER_KEY);
+		assertArrayEquals(CIPHER_OUTPUT, aes.Cipher(CIPHER_INPUT));
 	}
 
 	// Intermediate State values (page 33)
@@ -131,9 +132,9 @@ class AESTest {
 
 	@Test
 	void decrypts() {
-		byte[][] w = AES.AES128.KeyExpansion(CIPHER_KEY);
-		assertArrayEquals(CIPHER_INPUT, AES.AES128.InvCipher(CIPHER_OUTPUT, w));
-		assertArrayEquals(CIPHER_INPUT, AES.AES128.EqInvCipher(CIPHER_OUTPUT, AES.AES128.ModifiedKeyExpansion(w)));
+		AES aes = new AES(CIPHER_KEY);
+		assertArrayEquals(CIPHER_INPUT, aes.InvCipher(CIPHER_OUTPUT));
+		assertArrayEquals(CIPHER_INPUT, aes.EqInvCipher(CIPHER_OUTPUT));
 	}
 
 	@Test
@@ -161,5 +162,14 @@ class AESTest {
 		byte[][] after = convertHexToWordArray(STATES[step]);
 		AES.InvMixColumns(before);
 		assertArrayEquals(after, before);
+	}
+
+	@Test
+	void selectsCorrectModeForKey() {
+		byte[][] keys = {CIPHER_KEY_128b, CIPHER_KEY_192b, CIPHER_KEY_256b, new byte[512], new byte[64]};
+		AES.AESMode[] modes = {AES.AESMode.AES128, AES.AESMode.AES192, AES.AESMode.AES256, null, null};
+		for (int i = 0; i < keys.length; i++) {
+			assertEquals(modes[i], AES.selectModeForKey(keys[i].length));
+		}
 	}
 }
