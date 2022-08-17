@@ -134,7 +134,6 @@ class AESTest {
 	void decrypts() {
 		AES aes = new AES(CIPHER_KEY);
 		assertArrayEquals(CIPHER_INPUT, aes.InvCipher(CIPHER_OUTPUT));
-		assertArrayEquals(CIPHER_INPUT, aes.EqInvCipher(CIPHER_OUTPUT));
 	}
 
 	@Test

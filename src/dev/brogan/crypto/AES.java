@@ -37,15 +37,12 @@ public class AES {
 	private final int Nr;
 	/** Key schedule (Sec 5.2) */
 	private final byte[][] w;
-	/** Modified decryption key schedule (Sec 5.3.5). */
-	private final byte[][] dw;
 
 	AES(byte[] key) {
 		AESMode mode = selectModeForKey(key.length);
 		this.Nk = mode.Nk;
 		this.Nr = mode.Nr;
 		w = KeyExpansion(key);
-		dw = ModifiedKeyExpansion();
 	}
 
 	static AESMode selectModeForKey(int keyLength) {
@@ -298,58 +295,6 @@ public class AES {
 				state[r][c] = newColumn[r];
 			}
 		}
-	}
-
-	/**
-	 * Equivalent Inverse Cipher (Sec 5.3.5).
-	 * @param in ciphertext block to decrypt
-	 * @return message block
-	 */
-	byte[] EqInvCipher(byte[] in) {
-		assert in.length == WORD_SIZE * Nb;
-		assert dw.length == Nb * (Nr + 1);
-		byte[][] state = new byte[WORD_SIZE][Nb];
-		for (int r = 0; r < WORD_SIZE; r++) {
-			for (int c = 0; c < Nb; c++) {
-				state[r][c] = in[r + WORD_SIZE * c];
-			}
-		}
-		AddRoundKey(state, Arrays.copyOfRange(dw, Nr * Nb,  (Nr + 1) * Nb - 1 + 1));
-		for (int round = Nr - 1; round >= 1; round--) {
-			InvSubBytes(state);
-			InvShiftRows(state);
-			InvMixColumns(state);
-			AddRoundKey(state, Arrays.copyOfRange(dw, round * Nb, (round + 1) * Nb - 1 + 1));
-		}
-		InvSubBytes(state);
-		InvShiftRows(state);
-		AddRoundKey(state, Arrays.copyOfRange(dw, 0, Nb - 1 + 1));
-
-		byte[] out = new byte[in.length];
-		for (int r = 0; r < WORD_SIZE; r++) {
-			for (int c = 0; c < Nb; c++) {
-				out[r + WORD_SIZE * c] = state[r][c];
-			}
-		}
-		return out;
-	}
-
-	/** Modified Key Expansion routine (Sec 5.3.5). */
-	byte[][] ModifiedKeyExpansion() {
-		byte[][] dw = new byte[Nb * (Nr + 1)][WORD_SIZE];
-		for (int i = 0; i <= (Nr + 1) * Nb - 1; i++) {
-			dw[i] = w[i];
-		}
-		for (int round = 1; round <= Nr - 1; round++) {
-			byte[][] roundKey = Arrays.copyOfRange(dw, round * Nb, (round + 1) * Nb - 1 + 1);
-			roundKey = Bytes.transpose(roundKey);
-			InvMixColumns(roundKey);
-			roundKey = Bytes.transpose(roundKey);
-			for (int i = 0; i < Nb; i++) {
-				dw[round * Nb + i] = roundKey[i];
-			}
-		}
-		return dw;
 	}
 
 	enum AESMode {
