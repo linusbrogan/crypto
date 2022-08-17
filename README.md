@@ -8,5 +8,5 @@ Do not use it for any purpose.
 You have been warned.
 
 ## Contents
-- AES with CBC
+- AES with CBC and CTR
 - HOTP
