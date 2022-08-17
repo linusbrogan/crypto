@@ -3,11 +3,10 @@ package dev.brogan.crypto;
 import java.util.Arrays;
 
 /** An implementation of [FIPS 197](https://doi.org/10.6028/NIST.FIPS.197) */
-public enum AES {
-	// Supported Key-Round combinations
-	AES128(128, 10),
-	AES192(192, 12),
-	AES256(256, 14);
+public class AES {
+	public static final AES AES128 = new AES(AESMode.AES128);
+	public static final AES AES192 = new AES(AESMode.AES192);
+	public static final AES AES256 = new AES(AESMode.AES256);
 
 	private static final int BYTE_MASK = 0xff;
 	/** Word: "A group of 32 bits that is treated either as a single entity or as an array of 4 bytes" (page 6). */
@@ -41,9 +40,9 @@ public enum AES {
 	/** "Number of rounds, which is a function of Nk and Nb (which is fixed)" (page 7). */
 	private final int Nr;
 
-	AES(int keyLengthBits, int Nr) {
-		this.Nk = keyLengthBits / (8 * WORD_SIZE);
-		this.Nr = Nr;
+	AES(AESMode mode) {
+		this.Nk = mode.Nk;
+		this.Nr = mode.Nr;
 	}
 
 	/** Multiplication in GF(2^8) (Sec. 4.2). */
@@ -342,5 +341,22 @@ public enum AES {
 			}
 		}
 		return dw;
+	}
+
+	public enum AESMode {
+		// Supported Key-Round combinations
+		AES128(128, 10),
+		AES192(192, 12),
+		AES256(256, 14);
+
+		/** "Number of 32-bit words comprising the Cipher Key" (page 7). */
+		private final int Nk;
+		/** "Number of rounds, which is a function of Nk and Nb (which is fixed)" (page 7). */
+		private final int Nr;
+
+		AESMode(int keyLengthBits, int Nr) {
+			this.Nk = keyLengthBits / (8 * WORD_SIZE);
+			this.Nr = Nr;
+		}
 	}
 }
