@@ -6,7 +6,7 @@ public class Bytes {
 	/**
 	 * @return the bytes of l in big-endian order
 	 */
-	static byte[] convertLongToBytes(long l) {
+	public static byte[] convertLongToBytes(long l) {
 		final int bytesPerLong = 8;
 		final int bitsPerByte = 8;
 		byte[] bytes = new byte[bytesPerLong];
@@ -17,7 +17,7 @@ public class Bytes {
 	}
 
 	/** Left-pads string with zeroes to at least targetLength. */
-	static String zeroPad(String string, int targetLength) {
+	public static String zeroPad(String string, int targetLength) {
 		int zeroes = targetLength - string.length();
 		if (targetLength < string.length()) zeroes = 0;
 		return "0".repeat(zeroes) + string;
@@ -26,7 +26,7 @@ public class Bytes {
 	/**
 	 * @param hex an even-length string of hexadecimal digits
 	 */
-	static byte[] convertHexToBytes(String hex) {
+	public static byte[] convertHexToBytes(String hex) {
 		int length = hex.length();
 		assert length % 2 != 1;
 		byte[] bytes = new byte[length / 2];
@@ -41,7 +41,7 @@ public class Bytes {
 	/**
 	 * @param c a hexadecimal digit
 	 */
-	static byte hexCharToByte(char c) {
+	public static byte hexCharToByte(char c) {
 		if (c >= '0' && c <= '9') return (byte) (c - '0');
 		if (c >= 'a' && c <= 'f') return (byte) (c - 'a' + 10);
 		if (c >= 'A' && c <= 'F') return (byte) (c - 'A' + 10);
@@ -51,7 +51,7 @@ public class Bytes {
 		return 0;
 	}
 
-	static String convertBytesToHex(byte[] bytes) {
+	public static String convertBytesToHex(byte[] bytes) {
 		StringBuilder nybbles = new StringBuilder();
 		for (byte b : bytes) {
 			int high = (byte) (b >>> 4) & 0xf;
