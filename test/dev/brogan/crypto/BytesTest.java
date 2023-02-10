@@ -90,4 +90,11 @@ public class BytesTest {
 		byte[][] transpose = Bytes.transpose(before);
 		assertArrayEquals(after, transpose);
 	}
+
+	@Test
+	void convertsTextToBytes() {
+		String text = "Hello, world!";
+		byte[] bytes = {72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33};
+		assertArrayEquals(bytes, Bytes.convertTextToBytes(text));
+	}
 }

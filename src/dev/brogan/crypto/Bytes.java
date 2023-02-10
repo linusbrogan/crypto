@@ -81,4 +81,16 @@ public class Bytes {
 		}
 		return transpose;
 	}
+
+	/**
+	 * @param text ASCII string
+	 */
+	public static byte[] convertTextToBytes(String text) {
+		int length = text.length();
+		byte[] bytes = new byte[length];
+		for (int i = 0; i < length; i++) {
+			bytes[i] = (byte) text.charAt(i);
+		}
+		return bytes;
+	}
 }
