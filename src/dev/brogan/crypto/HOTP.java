@@ -12,7 +12,7 @@ public class HOTP {
 	// "Implementations MUST extract a 6-digit code at a minimum" (page 7).
 	private static final int DEFAULT_DIGITS = 6;
 	private static final int MINIMUM_DIGITS = 6;
-	// Truncating to 31 bits yields at most floor(31 * ln(10) / ln(2)) = 9 digits.
+	// Truncating to 31 bits yields at most floor(31 * ln(2) / ln(10)) = 9 digits.
 	private static final int MAXIMUM_DIGITS = 9;
 	// "The length of the shared secret MUST be at least 128 bits" (page 5).
 	private static final int MINIMUM_SECRET_BYTES = 128 / 8;
