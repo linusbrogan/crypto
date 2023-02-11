@@ -61,7 +61,7 @@ class HOTPTest {
 	void generatesCorrectIntermediateHMACValues() {
 		for (int i = 0; i < intermediateHMACValues.length; i++) {
 			byte[] counter = Bytes.convertLongToBytes(i);
-			byte[] hmac = HOTP.HMAC_SHA1(secret, counter);
+			byte[] hmac = HOTP.HMAC(HOTP.HashAlgorithm.SHA1, secret, counter);
 			assertEquals(intermediateHMACValues[i], Bytes.convertBytesToHex(hmac));
 		}
 	}

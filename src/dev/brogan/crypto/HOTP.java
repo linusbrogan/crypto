@@ -17,6 +17,19 @@ public class HOTP {
 	// "The length of the shared secret MUST be at least 128 bits" (page 5).
 	private static final int MINIMUM_SECRET_BYTES = 128 / 8;
 
+	// Supported hash algorithms.
+	// Only HMAC-SHA-1 is specified in HOTP, but TOTP also allows HMAC-SHA-256 and HMAC-SHA-512.
+	public enum HashAlgorithm {
+		SHA1("HmacSHA1"),
+		SHA256("HmacSHA256"),
+		SHA512("HmacSHA512");
+
+		public String algorithm;
+		HashAlgorithm(String algorithm) {
+			this.algorithm = algorithm;
+		};
+	}
+
 	/**
 	 * Generates a 6-digit HOTP value.
 	 * @param K "shared secret between client and server" (page 5).
@@ -38,18 +51,18 @@ public class HOTP {
 		assert Digit <= MAXIMUM_DIGITS;
 		assert K.length >= MINIMUM_SECRET_BYTES;
 
-		return Truncate(HMAC_SHA1(K, C), Digit);
+		return Truncate(HMAC(HashAlgorithm.SHA1, K, C), Digit);
 	}
 
 	/**
+	 * @param algorithm The HMAC algorithm
 	 * @param K The HMAC key
 	 * @param C The HMAC data
 	 */
-	static byte[] HMAC_SHA1(byte[] K, byte[] C) {
-		final String algorithm = "HmacSHA1";
+	static byte[] HMAC(HashAlgorithm algorithm, byte[] K, byte[] C) {
 		try {
-			Key key = new SecretKeySpec(K, algorithm);
-			Mac mac = Mac.getInstance(algorithm);
+			Key key = new SecretKeySpec(K, algorithm.algorithm);
+			Mac mac = Mac.getInstance(algorithm.algorithm);
 			mac.init(key);
 			byte[] input = C;
 			return mac.doFinal(input);
@@ -60,7 +73,7 @@ public class HOTP {
 	}
 
 	/**
-	 * "Converts an HMAC-SHA-1 value into an HOTP value" (page 6).
+	 * Converts an HMAC value into an HOTP value.
 	 * @param Digit "number of digits in an HOTP value" (page 6).
 	 */
 	static int Truncate(byte[] hmac, int Digit) {
