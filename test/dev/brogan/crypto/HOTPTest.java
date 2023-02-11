@@ -75,6 +75,19 @@ class HOTPTest {
 	}
 
 	@Test
+	void generatesHOTPWithAlternativeHashAlgorithms() {
+		byte[] secretSHA256 = Bytes.convertTextToBytes("12345678901234567890123456789012");
+		byte[] secretSHA512 = Bytes.convertTextToBytes("1234567890123456789012345678901234567890123456789012345678901234");
+		int i = 1;
+		byte[] counter = Bytes.convertLongToBytes(i);
+		int digits = 8;
+		int hotpSHA256 = 46119246;
+		int hotpSHA512 = 90693936;
+		assertEquals(hotpSHA256, HOTP.HOTP(secretSHA256, counter, digits, HOTP.HashAlgorithm.SHA256));
+		assertEquals(hotpSHA512, HOTP.HOTP(secretSHA512, counter, digits, HOTP.HashAlgorithm.SHA512));
+	}
+
+	@Test
 	void failsWithShortDigits() {
 		int digits = 5;
 		assertThrows(Throwable.class, () -> HOTP.HOTP(secret, zero, digits));

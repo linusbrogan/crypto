@@ -46,12 +46,23 @@ public class HOTP {
 	 * @param Digit "number of digits in an HOTP value" (page 6).
 	 */
 	public static int HOTP(byte[] K, byte[] C, int Digit) {
+		return HOTP(K, C, Digit, HashAlgorithm.SHA1);
+	}
+
+	/**
+	 * Generates an HOTP value.
+	 * @param K "shared secret between client and server" (page 5).
+	 * @param C "8-byte counter value, the moving factor" (page 5).
+	 * @param Digit "number of digits in an HOTP value" (page 6).
+	 * @param algorithm HMAC algorithm
+	 */
+	public static int HOTP(byte[] K, byte[] C, int Digit, HashAlgorithm algorithm) {
 		// Check length requirements.
 		assert Digit >= MINIMUM_DIGITS;
 		assert Digit <= MAXIMUM_DIGITS;
 		assert K.length >= MINIMUM_SECRET_BYTES;
 
-		return Truncate(HMAC(HashAlgorithm.SHA1, K, C), Digit);
+		return Truncate(HMAC(algorithm, K, C), Digit);
 	}
 
 	/**
@@ -88,7 +99,7 @@ public class HOTP {
 	 * @param string a 20-byte HMAC
 	 */
 	static int DT(byte[] string) {
-		byte Offset = (byte) (string[19] & 0xf);
+		byte Offset = (byte) (string[string.length - 1] & 0xf);
 		byte[] P = Arrays.copyOfRange(string, Offset, Offset + 4);
 		int dynamicBinaryCode = (P[0] & 0x7f) << 24 | (P[1] & 0xff) << 16 | (P[2] & 0xff) << 8 | (P[3] & 0xff);
 		return dynamicBinaryCode;
