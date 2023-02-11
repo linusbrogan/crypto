@@ -10,3 +10,4 @@ You have been warned.
 ## Contents
 - AES with CBC and CTR
 - HOTP
+- TOTP
