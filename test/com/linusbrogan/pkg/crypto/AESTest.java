@@ -1,4 +1,4 @@
-package dev.brogan.crypto;
+package com.linusbrogan.pkg.crypto;
 
 import org.junit.jupiter.api.Test;
 

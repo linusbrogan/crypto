@@ -1,4 +1,4 @@
-package dev.brogan.crypto;
+package com.linusbrogan.pkg.crypto;
 
 public class Bytes {
 	private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();

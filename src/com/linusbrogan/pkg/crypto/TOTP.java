@@ -1,4 +1,4 @@
-package dev.brogan.crypto;
+package com.linusbrogan.pkg.crypto;
 
 /** An implementation of [RFC 6238](https://www.rfc-editor.org/rfc/rfc6238) */
 public class TOTP {
